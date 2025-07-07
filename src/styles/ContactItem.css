@@ -1,0 +1,42 @@
+/* src/styles/ContactItem.css */
+.contact-item {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+  transition: background-color 0.2s;
+}
+
+.contact-item.selected {
+  background-color: #e6f7ff;
+}
+
+.contact-item input[type="checkbox"] {
+  margin-left: 10px;
+}
+
+.info {
+  flex-grow: 1;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actions button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actions .edit {
+  background-color: #007bff;
+  color: white;
+}
+
+.actions .delete {
+  background-color: #dc3545;
+  color: white;
+}

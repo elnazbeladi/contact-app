@@ -1,0 +1,26 @@
+/* src/styles/Toolbar.css */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.toolbar input[type="text"] {
+  flex-grow: 1;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.toolbar button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.toolbar .danger {
+  background-color: #dc3545;
+  color: white;
+}
