@@ -1,6 +1,4 @@
-// src/components/SearchBar.js
-import React from "react";
-import "../styles/Toolbar.css"; // استایل مشترک
+import "../styles/Toolbar.css";
 
 const SearchBar = ({ query, setQuery }) => {
   return (

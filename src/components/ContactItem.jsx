@@ -1,26 +1,19 @@
-// src/components/ContactItem.js
 import React from "react";
-import "../styles/ContactItem.css";
 
-const ContactItem = ({ contact, onEdit, onDelete, isSelected, onToggleSelect }) => {
+export default function ContactItem({ contact, onEdit, onDelete, selected, onSelect }) {
   return (
-    <div className={`contact-item ${isSelected ? "selected" : ""}`}>
+    <div className="contact-item">
       <input
         type="checkbox"
-        checked={isSelected}
-        onChange={onToggleSelect}
+        checked={selected}
+        onChange={() => onSelect(contact.id)}
       />
-      <div className="info">
-        <p><strong>نام:</strong> {contact.firstName}</p>
-        <p><strong>نام خانوادگی:</strong> {contact.lastName}</p>
-        <p><strong>ایمیل:</strong> {contact.email}</p>
-      </div>
-      <div className="actions">
-        <button className="edit" onClick={() => onEdit(contact)}>ویرایش</button>
-        <button className="delete" onClick={() => onDelete(contact)}>حذف</button>
-      </div>
+      <span>
+        {contact.firstName} {contact.lastName} - {contact.email}
+      </span>
+      <button onClick={() => onEdit(contact)}>✏️</button>
+      <button className="danger" onClick={() => onDelete(contact)}>🗑</button>
     </div>
   );
-};
+}
 
-export default ContactItem;

@@ -1,39 +1,34 @@
-// src/App.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ContactList from "./components/ContactList";
 import ContactForm from "./components/ContactForm";
 import SearchBar from "./components/SearchBar";
 import Toolbar from "./components/Toolbar";
 import Modal from "./components/Modal";
+import { parseRoute, navigateTo } from "./components/Routers";
 import "./styles/App.css";
 
-function App() {
+export default function App() {
   const [contacts, setContacts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedContacts, setSelectedContacts] = useState([]);
-  const [editingContact, setEditingContact] = useState(null);
   const [modal, setModal] = useState({ visible: false, action: null });
+  const [route, setRoute] = useState(parseRoute(window.location.hash));
+  const [selectedContacts, setSelectedContacts] = useState([]);
 
-  const filteredContacts = contacts.filter((c) => {
-    const fullName = `${c.firstName} ${c.lastName}`.toLowerCase();
-    return (
-      fullName.includes(searchQuery.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  });
+  useEffect(() => {
+    const onHash = () => setRoute(parseRoute(window.location.hash));
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
-  const addContact = (contact) => {
-    setContacts([...contacts, { ...contact, id: Date.now() }]);
-  };
+  useEffect(() => {
+    console.log("📍 route is now:", route.page);
+  }, [route]);
 
-  const updateContact = (updated) => {
-    setContacts(
-      contacts.map((c) => (c.id === updated.id ? { ...updated } : c))
-    );
-    setEditingContact(null);
-  };
-
-  const confirmDelete = (contact) => {
+  const addContact = (c) =>
+    setContacts([...contacts, { ...c, id: Date.now() }]);
+  const updateContact = (u) =>
+    setContacts(contacts.map((c) => (c.id === u.id ? u : c)));
+  const confirmDeleteOne = (contact) =>
     setModal({
       visible: true,
       action: () => {
@@ -41,18 +36,59 @@ function App() {
         setModal({ visible: false, action: null });
       },
     });
-  };
 
-  const confirmDeleteSelected = () => {
+  const confirmDeleteSelected = () =>
     setModal({
       visible: true,
       action: () => {
         setContacts(contacts.filter((c) => !selectedContacts.includes(c.id)));
-        setSelectedContacts([]);
+        setSelectedContacts([]); // پاک‌سازی انتخاب‌ها
         setModal({ visible: false, action: null });
       },
     });
-  };
+
+  const filtered = contacts.filter((c) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      `${c.firstName} ${c.lastName}`.toLowerCase().includes(q) ||
+      c.email.toLowerCase().includes(q)
+    );
+  });
+
+  if (route.page === "add") {
+    return (
+      <div className="app">
+        <ContactForm
+          contact={{}} // فرم خالی برای افزودن
+          onCancel={() => navigateTo("/")}
+          onSubmit={(c) => {
+            addContact(c);
+            navigateTo("/");
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (route.page === "edit") {
+    const contact = contacts.find((c) => c.id === route.id);
+    return (
+      <div className="app">
+        {contact ? (
+          <ContactForm
+            contact={contact}
+            onCancel={() => navigateTo("/")}
+            onSubmit={(c) => {
+              updateContact(c);
+              navigateTo("/");
+            }}
+          />
+        ) : (
+          <p style={{ textAlign: "center" }}>مخاطب پیدا نشد</p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="app">
@@ -61,38 +97,26 @@ function App() {
       <SearchBar query={searchQuery} setQuery={setSearchQuery} />
 
       <Toolbar
-        onAdd={() => setEditingContact({})}
+        onAdd={() => navigateTo("/add")}
         onDeleteSelected={confirmDeleteSelected}
         selectedCount={selectedContacts.length}
       />
 
       <ContactList
-        contacts={filteredContacts}
-        onEdit={(c) => setEditingContact(c)}
-        onDelete={confirmDelete}
+        contacts={filtered}
+        onEdit={(c) => navigateTo(`/edit/${c.id}`)}
+        onDelete={confirmDeleteOne}
         selectedContacts={selectedContacts}
         setSelectedContacts={setSelectedContacts}
       />
 
-      {editingContact && (
-        <ContactForm
-          contact={editingContact}
-          onCancel={() => setEditingContact(null)}
-          onSubmit={(c) =>
-            editingContact.id ? updateContact(c) : addContact(c)
-          }
-        />
-      )}
-
       {modal.visible && (
         <Modal
-          message="آیا از انجام این عملیات مطمئن هستید؟"
-          onConfirm={() => modal.action()}
+          message="آیا مطمئن هستید؟"
+          onConfirm={modal.action}
           onCancel={() => setModal({ visible: false, action: null })}
         />
       )}
     </div>
   );
 }
-
-export default App;
